@@ -1,9 +1,178 @@
-﻿<div id="playerGrid"></div>
+﻿<div class="row">
+    <div class="col-lg-12">        
+        <div id="selectionTree"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div id="playerGrid"></div>
+        <div class="loader">
+            <span id="playerGridLoader"></span>
+        </div>
+    </div>    
+</div>
+
+<style>
+    .loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 450px;
+    }
+</style>
 
 <script type="text/javascript">
     $(document).ready(() => {
+        $("#playerGridLoader").kendoLoader();
+
         $.get('@Url.Action("PlayerGrid")', (result) => {
-            console.log(result);
+
+            const columns = [
+                { field: "playerId", hidden: true },
+                { field: "player", title: "Player", locked: true },
+                { field: "teamName", title: "Team" },
+                {
+                    title: "Basic",
+                    columns: [
+                        { field: "qbRating", title: "QBR", description: "Quarterback Rating" },
+                        { field: "touchdowns", title: "TD", description: "Touchdowns" },
+                        { field: "interceptions", title: "INT", description: "Inteceptions" },
+                        { field: "attempts", title: "ATT", description: "Attempts" },
+                        { field: "completions", title: "COMP", description: "Completions" },
+                        { field: "completionPercent", title: "COMP %", description: "Completion Percentage" },
+                        { field: "yards", title: "YDS", description: "Yards" },
+                        { field: "ypa", title: "YPA", description: "Yards Per Attempt" },
+                        { field: "firstDowns", title: "FD", description: "First Downs" },
+                    ]
+                },
+                {
+                    title: "Advanced",
+                    columns: [
+                        { field: "turnoverWorthyPlays", title: "TWP", description: "Turnover Worthy Plays - A pass that has high percentage chance to be intercepted or a poor job of taking care of the ball and fumbling" },
+                        { field: "twpRate", title: "TWPR", description: "Turnover Worthy Play Rate" },
+                        { field: "aimedPasses", title: "Aimed", description: "Aimed Passes" },                        
+                        { field: "bigTimeThrows", title: "BTime", description: "Big Time Throws - A pass with excellent ball location and timing, generally thrown further down the field and/or into a tighter window" },
+                        { field: "bttRate", title: "BTimeR", description: "Big Time Throw Rate" },
+                    ]
+                },
+                {
+                    title: "Targets",
+                    columns: [
+                        { field: "avgDepthOfTarget", title: "aDoT", description: "Average Depth of Target" },
+                        { field: "drops", title: "Drops", description: "Passes dropped by targetted receiver" },
+                        { field: "dropRate", title: "DropRate", description: "Passes dropped rate" },
+                    ]
+                },
+                {
+                    title: "Pressure",
+                    columns: [
+                        { field: "avgTimeToThrow", title: "TTT", description: "Time to Throw" },
+                        { field: "bats", title: "Bats", description: "Batted Passes - Passes batted away/deflected at the line of scrimmage" },
+                        { field: "scrambles", title: "Scrambles" },
+                        { field: "defGenPressures", title: "Pressures" },
+                        { field: "sacks", title: "Sacks" },
+                        { field: "sackPercent", title: "Sack %", description: "Sack Percentage" },
+                        { field: "pressureToSackRate", title: "Pres/Sack", description: "Pressure to Sack Rate" },
+                        { field: "hitAsThrew", title: "HitAsThrew", description: "Passer hit while attempting the pass" },
+                        { field: "thrownAways", title: "ThrownAway", description: "Passes intentionally thrown away" },
+                    ]
+                },
+                {
+                    title: "Pro Football Focus Grades",
+                    columns: [
+                        { field: "gradesOffense", title: "Offense", description: "Pro Football Focus Offensive Rating" },
+                        { field: "gradesPass", title: "Pass", description: "Pro Football Focus Passer Rating" },
+                        { field: "gradesRun", title: "Rush", description: "Pro Football Focus Rush Rating" },
+                        { field: "gradesHandsFumble", title: "Fumble", description: "Pro Football Focus Hands Fumble Rating" },
+                    ]
+                },
+                {
+                    title: "Miscellaneous",
+                    columns: [
+                        { field: "penalties", title: "PenAcc", description: "Penalties (Accepted)" },
+                        { field: "declinedPenalties", title: "PenDec", description: "Penalties (Declined)" },
+                        { field: "spikes", title: "Spikes" },
+                        { field: "dropbacks", title: "Dropbacks" },
+                        { field: "passingSnaps", title: "Passing Snaps" },
+                    ]
+                },
+            ];
+
+            // Setup Grid
+            $("#playerGrid").kendoGrid({
+                height: 450,
+                sortable: true,
+                resizable: true,
+                selectable: {
+                    mode: "multiple, row"
+                },                
+                columns: columns,
+                dataSource: {
+                    data: result
+                }
+            });
+            
+            const grid = $("#playerGrid").data("kendoGrid");
+
+            // Size the columns and child columns for horizontal scrolling (one time)
+            const sizeColsRecursive = (cols) => {
+                cols.forEach(col => {
+                    grid.autoFitColumn(col);
+                    if (col.columns !== undefined) {
+                        col.columns.forEach(childCol => {
+                            grid.autoFitColumn(childCol);
+                        })
+                    }
+                })
+            };
+
+            sizeColsRecursive(grid.columns);
+
+            // Used to populate glossary style tooltips
+            grid.thead.kendoTooltip({
+                filter: "th",
+                content: function (e) {
+                    const target = $(e.target);
+                    const title = target[0].dataset.title;
+                    const cols = columns.filter(c => c.columns !== undefined).map(c => c.columns).flat();
+                    const match = cols.find(c => c.title === title);
+                    return match === undefined ? title : match.description === undefined ? match.title : match.description;
+                }
+            }) 
+
+            // Build grid filtering selection
+            const treeViewModel = columns.filter(c => c.columns !== undefined)
+                .map((c) => ({ text: c.title, items: c.columns.map(ch => ({ text: ch.title })) }));
+
+            $("#selectionTree").kendoTreeView({
+                dataSource: treeViewModel,
+                checkboxes: {
+                    checkChildren: true
+                },
+                check: (e) => { // Use event to filter grid columns
+                    const checkedColumns = $("#selectionTree input[type=checkbox]:checked,input[type=checkbox]:indeterminate").parent().next(".k-in").toArray().map(c => c.innerText);
+
+                    const allCols = [...grid.columns, ...grid.columns.filter(c => c.columns !== undefined).map(c => c.columns).flat()]
+
+                    allCols.forEach(c => {
+                        if (c.title === "Player" || c.title === "Team")
+                            return;
+
+                        const show = c.title !== undefined
+                            && checkedColumns.some(chked => chked === c.title);
+
+                        if (show && c.hidden)
+                            grid.showColumn(c);
+                        else if (!show && !c.hidden)
+                            grid.hideColumn(c);                         
+                    });
+                }
+            });
+
+            $("#selectionTree input[type=checkbox]").prop("checked", true);
+
+            $("#playerGridLoader").hide();
         })
     })
 </script>

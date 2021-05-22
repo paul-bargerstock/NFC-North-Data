@@ -4,25 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - NFCNorth</title>
-    
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link href="https://kendo.cdn.telerik.com/2021.2.511/styles/kendo.common.min.css" rel="stylesheet" />
-    <link href="https://kendo.cdn.telerik.com/2021.2.511/styles/kendo.bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.2.511/styles/kendo.material.min.css" />        
     <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
     <script src="https://kendo.cdn.telerik.com/2021.2.511/js/kendo.all.min.js"></script>
 </head>
 <body>
     @RenderBody()
-    <select id="dropdownlist">
-        <option>Item 1</option>
-        <option>Item 2</option>
-        <option>Item 3</option>
-    </select>
-
-    <script>
-        $(document).ready(function () {
-            $("#dropdownlist").kendoDropDownList();
-        });
-    </script>
-
 </body>
 </html>
