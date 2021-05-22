@@ -1,0 +1,9 @@
+﻿<div id="playerGrid"></div>
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        $.get('@Url.Action("PlayerGrid")', (result) => {
+            console.log(result);
+        })
+    })
+</script>
