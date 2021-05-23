@@ -1,16 +1,20 @@
 ﻿<div class="row">
-    <div class="col-lg-12">        
-        <div id="selectionTree"></div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-10 offset-lg-1 col-sm-12">
+        <div style="width: 100%; background-color: #0076B6; height: 2.5em; display: flex; justify-content: space-between">
+            <div style="color: white; font-weight: bold; font-size: 110%; padding-left: 1em; display: flex; align-items: center;">Quarterback Stats</div>
+            <div style="color: white; padding-right: 1em; display: flex; align-items: center;">
+                <span class="k-icon k-i-gear" style="cursor: pointer;" onclick="$('#filterDialog').data('kendoDialog').open()"></span>
+            </div>
+        </div>
         <div id="playerGrid"></div>
         <div class="loader">
             <span id="playerGridLoader"></span>
         </div>
-    </div>    
+    </div>
+</div>
+
+<div id="filterDialog">
+    <div id="selectionTree"></div>
 </div>
 
 <style>
@@ -30,7 +34,12 @@
 
             const columns = [
                 { field: "playerId", hidden: true },
-                { field: "player", title: "Player", locked: true },
+                {
+                    field: "player",
+                    title: "Player",
+                    locked: true,
+                    template: "<a href='@Url.Action("PlayerDetail")?playerId=#=playerId#' target='_blank'>#=player#</a>"
+                },
                 { field: "teamName", title: "Team" },
                 {
                     title: "Basic",
@@ -51,7 +60,7 @@
                     columns: [
                         { field: "turnoverWorthyPlays", title: "TWP", description: "Turnover Worthy Plays - A pass that has high percentage chance to be intercepted or a poor job of taking care of the ball and fumbling" },
                         { field: "twpRate", title: "TWPR", description: "Turnover Worthy Play Rate" },
-                        { field: "aimedPasses", title: "Aimed", description: "Aimed Passes" },                        
+                        { field: "aimedPasses", title: "Aimed", description: "Aimed Passes" },
                         { field: "bigTimeThrows", title: "BTime", description: "Big Time Throws - A pass with excellent ball location and timing, generally thrown further down the field and/or into a tighter window" },
                         { field: "bttRate", title: "BTimeR", description: "Big Time Throw Rate" },
                     ]
@@ -106,13 +115,13 @@
                 resizable: true,
                 selectable: {
                     mode: "multiple, row"
-                },                
+                },
                 columns: columns,
                 dataSource: {
                     data: result
                 }
             });
-            
+
             const grid = $("#playerGrid").data("kendoGrid");
 
             // Size the columns and child columns for horizontal scrolling (one time)
@@ -139,7 +148,7 @@
                     const match = cols.find(c => c.title === title);
                     return match === undefined ? title : match.description === undefined ? match.title : match.description;
                 }
-            }) 
+            })
 
             // Build grid filtering selection
             const treeViewModel = columns.filter(c => c.columns !== undefined)
@@ -150,9 +159,9 @@
                 checkboxes: {
                     checkChildren: true
                 },
-                check: (e) => { // Use event to filter grid columns
+                check: function () {
                     const checkedColumns = $("#selectionTree input[type=checkbox]:checked,input[type=checkbox]:indeterminate").parent().next(".k-in").toArray().map(c => c.innerText);
-
+                    const grid = $("#playerGrid").data("kendoGrid");
                     const allCols = [...grid.columns, ...grid.columns.filter(c => c.columns !== undefined).map(c => c.columns).flat()]
 
                     allCols.forEach(c => {
@@ -165,14 +174,34 @@
                         if (show && c.hidden)
                             grid.showColumn(c);
                         else if (!show && !c.hidden)
-                            grid.hideColumn(c);                         
+                            grid.hideColumn(c);
                     });
                 }
             });
 
             $("#selectionTree input[type=checkbox]").prop("checked", true);
 
+            // Setup filter dialog
+            $("#filterDialog").kendoDialog({
+                width: "450px",
+                title: "Column Selection",
+                closable: true,
+                modal: true,
+                visible: false,
+                animation: {
+                    close: {
+                        effects: "fade:out"
+                    },
+                    open: {
+                        effects: "fade:in"
+                    }
+                },
+                actions: [
+                    { text: 'Ok', primary: true }
+                ],
+            });
+
             $("#playerGridLoader").hide();
         })
-    })
+    });
 </script>
