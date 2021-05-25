@@ -6,6 +6,7 @@ namespace DataService.Repositories
     public interface IDataRepository
     {
         public Task<object> GetPlayerListAsync();
+        public Task<Player> GetPlayerAsync(int playerId);
         public Task<Rusher> GetPlayerRushingStatsAsync(int playerId);
         public Task<Passer> GetPlayerPassingStatsAsync(int playerId);
         public Task<Receiver> GetPlayerReceivingStatsAsync(int playerId);

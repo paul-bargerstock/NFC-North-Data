@@ -1,8 +1,7 @@
 ﻿using DataService.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using NFCNorth.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NFCNorth.Controllers
@@ -16,9 +15,30 @@ namespace NFCNorth.Controllers
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        public IActionResult PlayerDetail()
+        public async Task<IActionResult> PlayerDetail(int? playerID)
         {
-            return View();
+            // Default to Swift for display purposes
+            if (!playerID.HasValue)
+                playerID = 57212;
+
+            var player = await _repository.GetPlayerAsync(playerID.Value);
+            var info = await _repository.GetLionInfoAsync(playerID.Value);
+            var passing = await _repository.GetPlayerPassingStatsAsync(playerID.Value);
+            var rushing = await _repository.GetPlayerRushingStatsAsync(playerID.Value);
+            var receiving = await _repository.GetPlayerReceivingStatsAsync(playerID.Value);
+
+            var vm = new PlayerDetailViewModel
+            {
+                FullName = player.FullName,
+                Team = player.TeamName,
+                HeadshotLocation = player.NFLHeadshotSrc,
+                PassingStats = passing,
+                PlayerInfo = info,
+                ReceivingStats = receiving,
+                RushingStats = rushing
+            };
+
+            return View(vm);
         }
 
         public IActionResult PlayerList()
@@ -29,16 +49,6 @@ namespace NFCNorth.Controllers
         public async Task<IActionResult> PlayerGrid()
         {
             return new OkObjectResult(await _repository.GetPlayerListAsync());
-        }
-
-        public IActionResult QBComparison()
-        {
-            return PartialView("_QBComparison");
-        }
-
-        public IActionResult LionsInfo(int playerID)
-        {
-            return PartialView("_LionsInfo");
         }
     }
 }

@@ -3,3 +3,12 @@
 .k-window-titlebar {
     background-color: #0076B6 !important;
 }
+
+#playerGrid .k-grid-content {    
+    max-height: 60vh;
+}
+
+.k-card-header {
+    overflow: unset;
+    background-color: #0076B6 !important;
+}

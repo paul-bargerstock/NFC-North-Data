@@ -19,6 +19,7 @@ namespace DataService.Entities
         public virtual DbSet<PlayerInfo> PlayerInfos { get; set; }
         public virtual DbSet<Receiver> Receivers { get; set; }
         public virtual DbSet<Rusher> Rushers { get; set; }
+        public virtual DbSet<Player> Players { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -31,6 +32,19 @@ namespace DataService.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Player>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.PlayerId).HasColumnName("PlayerId");
+
+                entity.Property(e => e.FullName).HasColumnName("FullName");
+
+                entity.Property(e => e.TeamName).HasColumnName("TeamName");
+
+                entity.Property(e => e.NFLHeadshotSrc).HasColumnName("NFLHeadshotSrc");
+            });
 
             modelBuilder.Entity<Passer>(entity =>
             {

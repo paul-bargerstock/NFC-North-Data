@@ -27,8 +27,8 @@ namespace NFCNorth
         public void ConfigureServices(IServiceCollection services)
         {
             // DI
-            services.AddDbContext<FootballExampleContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("FootballData")));
+            services.AddDbContext<FootballExampleContext>(options =>                
+                options.UseSqlServer(Configuration.GetConnectionString("FootballData")), ServiceLifetime.Transient);
 
             services.AddTransient<IDataRepository, DataRepository>();
 

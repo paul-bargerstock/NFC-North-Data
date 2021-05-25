@@ -22,7 +22,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 450px;
+        height: 60vh;
+        background-color: white;
     }
 </style>
 
@@ -109,10 +110,9 @@
             ];
 
             // Setup Grid
-            $("#playerGrid").kendoGrid({
-                height: 450,
+            $("#playerGrid").kendoGrid({                
                 sortable: true,
-                resizable: true,
+                resizable: true,                
                 selectable: {
                     mode: "multiple, row"
                 },
@@ -202,6 +202,7 @@
             });
 
             $("#playerGridLoader").hide();
+            $(".loader").hide();
         })
     });
 </script>

@@ -1,5 +1,4 @@
 ﻿using DataService.Entities;
-using DataService.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -23,8 +22,14 @@ namespace DataService.Repositories
 
         public async Task<object> GetPlayerListAsync()
         {
-            var players = await _context.Passers.ToListAsync();
+            var players = await _context.Passers.OrderBy(p => p.Player).ToListAsync();
             return players;
+        }
+
+        public async Task<Player> GetPlayerAsync(int playerId)
+        {
+            var player = await _context.Players.FirstOrDefaultAsync(p => p.PlayerId == playerId);
+            return player;
         }
 
         public async Task<Passer> GetPlayerPassingStatsAsync(int playerID)

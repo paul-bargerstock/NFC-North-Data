@@ -1,4 +1,284 @@
-﻿@{
+﻿@model PlayerDetailViewModel
+
+@{
     ViewBag.Title = "Player Details";
 }
-@await Html.PartialAsync("_LionsInfo")
+
+<div class="row">
+    <div class="col-lg-10 offset-lg-1 col-sm-12">
+        <div id="layout"></div>
+    </div>
+</div>
+
+
+<script id="playerBase" type="text/x-kendo-template">
+    <div style="display: flex;">
+        <div>
+            <img src='@Model.HeadshotLocation' />
+        </div>
+        <div style="padding-left: 2em;">
+            <h3>@Html.Raw(Model.FullName)</h3>
+            <h5>@(Model.PassingStats != null ? Model.PassingStats.Position : Model.PlayerInfo.LionsPos)</h5>
+            <p>@Model.Team</p>
+        </div>
+        @if(Model.PlayerInfo != null)
+        {
+            <text>
+            <div style="padding-left: 4em;">
+                <label><strong>Age: </strong></label>
+                <p>@Model.PlayerInfo.Age</p>
+                <label><strong>College: </strong></label>
+                <p>@Model.PlayerInfo.CollegeName</p>
+                <label><strong>Drafted: </strong></label>
+                <p>Round @Model.PlayerInfo.DraftRound; (@Model.PlayerInfo.DraftNumber Overall)</p>
+                <label><strong>Experience: </strong></label>
+                <p>@Model.PlayerInfo.Nflexperience Years</p>
+            </div>
+            </text>
+        }
+    </div>
+</script>
+
+@if (Model.PlayerInfo != null)
+{
+    <script id="infoMain" type="text/x-kendo-template">
+        <div id="infoMainGrid"></div>
+    </script>
+
+    <script type="text/javascript">
+        const infoMainData = [
+            { stat: "Arm", value: "@Model.PlayerInfo.Arm" },
+            { stat: "Weight", value: "@Model.PlayerInfo.Weight" },
+            { stat: "Wingspan", value: "@Model.PlayerInfo.Wingspan" },
+            { stat: "40yd Dash", value: "@Model.PlayerInfo._40Time" },
+        ];
+    </script>
+}
+
+@if (Model.RushingStats != null)
+{
+    <script id="rushingMain" type="text/x-kendo-template">
+        <div id="rushingMainGrid"></div>
+    </script>
+
+    <script id="rushingElusive" type="text/x-kendo-template">
+        <div id="rushingElusiveGrid"></div>
+    </script>
+
+    <script id="rushingPff" type="text/x-kendo-template">
+        <div id="rushingPffGrid"></div>
+    </script>
+
+    <script type="text/javascript">
+        const rushingMainData = [
+            { stat: "Touchdowns", value: "@Model.RushingStats.Touchdowns" },
+            { stat: "Fumbles", value: "@Model.RushingStats.Fumbles" },
+            { stat: "First Downs", value: "@Model.RushingStats.FirstDowns" },
+            { stat: "Attempts", value: "@Model.RushingStats.Attempts" },
+            { stat: "Explosive Attempts", value: "@Model.RushingStats.Explosive" },
+            { stat: "Yards Per Attempt", value: "@Model.RushingStats.Ypa" },
+            { stat: "Longest", value: "@Model.RushingStats.Longest" },
+            { stat: "Touches", value: "@Model.RushingStats.TotalTouches" },
+            { stat: "Yards", value: "@Model.RushingStats.Yards" },
+            { stat: "Yards After Contact", value: "@Model.RushingStats.YardsAfterContact (@Model.RushingStats.YcoAttempt/Att)" },
+        ];
+
+        const rushingPffData = [
+            { stat: "Offense", value: "@Model.RushingStats.GradesOffense" },
+            { stat: "Offense - Penalty", value: "@Model.RushingStats.GradesOffensePenalty" },
+            { stat: "Rushing", value: "@Model.RushingStats.GradesRun" },
+            { stat: "Route Running", value: "@Model.RushingStats.GradesPassRoute" },
+            { stat: "Pass Blocking", value: "@Model.RushingStats.GradesPassBlock" },
+            { stat: "Run Blocking", value: "@Model.RushingStats.GradesRunBlock" },
+        ];
+
+        const rushingElusiveData = [
+            { stat: "Avoided Tackles", value: "@Model.RushingStats.AvoidedTackles" },
+            { stat: "Missed Tackles Forced (Rushing)", value: "@Model.RushingStats.EluRushMtf" },
+            { stat: "Missed Tackles Forced (Receiving)", value: "@Model.RushingStats.EluRecvMtf" },
+            { stat: "Breakaway Attempts", value: "@Model.RushingStats.BreakawayAttempts (@Model.RushingStats.BreakawayPercent%)" },
+            { stat: "Breakaway Yards", value: "@Model.RushingStats.BreakawayYards" },
+            { stat: "Elusiveness Rating", value: "@Model.RushingStats.ElusiveRating" },
+        ];
+    </script>
+}
+
+@if (Model.ReceivingStats != null)
+{
+    <script id="receivingMain" type="text/x-kendo-template">
+        <div id="receivingMainGrid"></div>
+    </script>
+
+    <script id="receivingPff" type="text/x-kendo-template">
+        <div id="receivingPffGrid"></div>
+    </script>
+
+    <script type="text/javascript">
+        const receivingMainData = [
+            { stat: "Touchdowns", value: "@Model.ReceivingStats.Touchdowns" },
+            { stat: "Receptions", value: "@Model.ReceivingStats.Receptions" },
+            { stat: "Targets", value: "@Model.ReceivingStats.Targets" },
+            { stat: "Yards", value: "@Model.ReceivingStats.Yards" },
+            { stat: "Yards Per Reception", value: "@Model.ReceivingStats.YardsPerReception" },
+            { stat: "Yards After Catch", value: "@Model.ReceivingStats.YardsAfterCatch (@Model.ReceivingStats.YardsAfterCatchPerReception / per reception)" },
+            { stat: "Longest", value: "@Model.ReceivingStats.Longest" },
+            { stat: "First Downs", value: "@Model.ReceivingStats.FirstDowns" },
+            { stat: "Catch Percentage", value: "@Model.ReceivingStats.CaughtPercent%" },
+            { stat: "Drops", value: "@Model.ReceivingStats.Drops (@Model.ReceivingStats.DropRate%)" },
+
+        ];
+
+        const receivingPffData = [
+            { stat: "Offense", value: "@Model.ReceivingStats.GradesOffense" },
+            { stat: "Pass Routes", value: "@Model.ReceivingStats.GradesPassRoute" },
+            { stat: "Hands - Drop", value: "@Model.ReceivingStats.GradesHandsDrop" },
+            { stat: "Hands - Fumble", value: "@Model.ReceivingStats.GradesHandsFumble" },
+        ];
+    </script>
+}
+
+@if (Model.PassingStats != null)
+{
+    <script id="passerMain" type="text/x-kendo-template">
+        <div id="passerMainGrid"></div>
+    </script>
+
+    <script id="passerAdv" type="text/x-kendo-template">
+        <div id="passerAdvGrid"></div>
+    </script>
+
+    <script id="passerPff" type="text/x-kendo-template">
+        <div id="passerPffGrid"></div>
+    </script>
+
+    <script id="passerPressure" type="text/x-kendo-template">
+        <div id="passerPressureGrid"></div>
+    </script>
+
+    <script type="text/javascript">
+    const basicPassingData = [
+        { stat: "QBR", value: "@Model.PassingStats.QbRating" },
+        { stat: "Touchdowns", value: "@Model.PassingStats.Touchdowns" },
+        { stat: "Interceptions", value: "@Model.PassingStats.Interceptions" },
+        { stat: "Attempts", value: "@Model.PassingStats.Attempts" },
+        { stat: "Completions", value: "@Model.PassingStats.Completions (@Model.PassingStats.CompletionPercent%)" },
+    ];
+
+    const pffPassingGradesData = [
+        { stat: "Offense", value: "@Model.PassingStats.GradesOffense" },
+        { stat: "Pass", value: "@Model.PassingStats.GradesPass" },
+        { stat: "Run", value: "@Model.PassingStats.GradesRun" },
+        { stat: "Hands/Fumble", value: "@Model.PassingStats.GradesHandsFumble" },
+    ];
+
+    const qbPressureData = [
+        { stat: "Time to Throw", value: "@Model.PassingStats.AvgTimeToThrow" },
+        { stat: "Batted Passes", value: "@Model.PassingStats.Bats" },
+        { stat: "Scrambles", value: "@Model.PassingStats.Scrambles" },
+        { stat: "Pressures", value: "@Model.PassingStats.DefGenPressures" },
+        { stat: "Sacks", value: "@Model.PassingStats.Sacks (@Model.PassingStats.SackPercent%)" },
+        { stat: "Pressure/Sack Rate", value: "@Model.PassingStats.PressureToSackRate%" },
+        { stat: "Hit As Threw", value: "@Model.PassingStats.HitAsThrew" },
+        { stat: "Throw Aways", value: "@Model.PassingStats.ThrownAways" },
+    ];
+
+    const advancedPassingData = [
+        { stat: "Turnover Worthy Plays", value: "@Model.PassingStats.TurnoverWorthyPlays (@Model.PassingStats.TwpRate%)" },
+        { stat: "Aimed Passes", value: "@Model.PassingStats.AimedPasses" },
+        { stat: "Big Time Throws", value: "@Model.PassingStats.BigTimeThrows (@Model.PassingStats.BttRate%)" },
+    ];
+    </script>
+}
+
+<script type="text/javascript">
+    $(document).ready(() => {
+        const isPasser = "@(Model.PassingStats != null)" === "True";
+
+        let containers = [{
+            colSpan: 5,
+            rowSpan: 2,
+            bodyTemplate: kendo.template($("#playerBase").html())
+        }];
+
+        if (isPasser) {
+            containers.push({ colSpan: 3, rowSpan: 2, bodyTemplate: kendo.template($("#passerMain").html()), header: { text: "Basic" } });
+            containers.push({ colSpan: 4, rowSpan: 2, bodyTemplate: kendo.template($("#passerAdv").html()), header: { text: "Advanced" } });
+            containers.push({ colSpan: 4, rowSpan: 4, bodyTemplate: kendo.template($("#passerPressure").html()), header: { text: "Pressure" } });
+            containers.push({ colSpan: 4, rowSpan: 2, bodyTemplate: kendo.template($("#passerPff").html()), header: { text: "Pro Football Focus Grades" } });
+        }
+        else {
+            containers.push({ colSpan: 3, rowSpan: 2, bodyTemplate: kendo.template($("#infoMain").html()), header: { text: "Measurables" } });
+            containers.push({ colSpan: 3, rowSpan: 4, bodyTemplate: kendo.template($("#rushingMain").html()), header: { text: "Rushing - Stats" } });
+            containers.push({ colSpan: 3, rowSpan: 2, bodyTemplate: kendo.template($("#rushingElusive").html()), header: { text: "Rushing - Elusiveness" } });
+            containers.push({ colSpan: 2, rowSpan: 2, bodyTemplate: kendo.template($("#rushingPff").html()), header: { text: "Rushing - Pro Football Focus Grades" } });
+            containers.push({ colSpan: 3, rowSpan: 3, bodyTemplate: kendo.template($("#receivingMain").html()), header: { text: "Receiving - Stats" } });
+            containers.push({ colSpan: 2, rowSpan: 2, bodyTemplate: kendo.template($("#receivingPff").html()), header: { text: "Receiving - Pro Football Focus Grades" } });
+        }
+
+        $("#layout").kendoTileLayout({
+            containers: containers,
+            columns: 8,
+            columnsWidth: 300,
+            rowsHeight: 100,
+            reorderable: true,
+            resizable: true,
+            resize: function (e) {
+                kendo.resize(e.container, true);
+            }
+        });
+
+        if (isPasser) {
+            $("#passerMainGrid").kendoGrid({
+                dataSource: basicPassingData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#passerAdvGrid").kendoGrid({
+                dataSource: advancedPassingData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#passerPffGrid").kendoGrid({
+                dataSource: pffPassingGradesData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#passerPressureGrid").kendoGrid({
+                dataSource: qbPressureData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+        } else {
+            $("#infoMainGrid").kendoGrid({
+                dataSource: infoMainData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#rushingMainGrid").kendoGrid({
+                dataSource: rushingMainData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#rushingPffGrid").kendoGrid({
+                dataSource: rushingPffData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#rushingElusiveGrid").kendoGrid({
+                dataSource: rushingElusiveData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#receivingMainGrid").kendoGrid({
+                dataSource: receivingMainData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+
+            $("#receivingPffGrid").kendoGrid({
+                dataSource: receivingPffData,
+                columns: [{ field: "stat" }, { field: "value" }],
+            });
+        }
+
+        $("thead").hide();
+    });
+</script>
